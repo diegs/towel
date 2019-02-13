@@ -1,10 +1,11 @@
-// Binary towel runs a program specified on the command line, intercepts stderr, and reformats it to fatal structured
-// log output.
+// Binary towel runs a program specified on the command line, intercepts stderr, and reformats any invalid lines to
+// fatal structured log output.
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -34,16 +35,42 @@ func main() {
 		log.Fatal(err)
 	}
 
-	stderr, err := ioutil.ReadAll(stderrPipe)
-	if err != nil {
-		log.Fatal(err)
+	s := bufio.NewScanner(stderrPipe)
+	var buf bytes.Buffer
+	stderr := bufio.NewWriter(os.Stderr)
+	defer stderr.Flush()
+	for {
+		if !s.Scan() {
+			break
+		}
+		bs := s.Bytes()
+		if bs[len(bs)-1] == '}' {
+			if buf.Len() > 0 {
+				now := time.Now().UTC()
+				stderr.WriteString(fmt.Sprintf(tmpl, now.Format(fmtTimePrefix), fmtTimeTS(now), program, program, c.Process.Pid, strconv.Quote(buf.String())))
+				buf.Reset()
+			}
+			stderr.Write(bs)
+			stderr.WriteRune('\n')
+		} else {
+			buf.Write(bs)
+			buf.WriteRune('\n')
+		}
+	}
+
+	if buf.Len() > 0 {
+		now := time.Now().UTC()
+		stderr.WriteString(fmt.Sprintf(tmpl, now.Format(fmtTimePrefix), fmtTimeTS(now), program, program, c.Process.Pid, strconv.Quote(buf.String())))
+		buf.Reset()
+	}
+
+	if s.Err() != nil {
+		log.Print(err)
 	}
 
 	if err := c.Wait(); err != nil {
 		switch err := err.(type) {
 		case *exec.ExitError:
-			now := time.Now().UTC()
-			fmt.Printf(tmpl, now.Format(fmtTimePrefix), fmtTimeTS(now), program, program, err.Pid(), err.Error(), strconv.Quote(string(stderr)))
 		default:
 			log.Fatal(err)
 		}
@@ -51,7 +78,7 @@ func main() {
 }
 
 // format: 2019-02-13T20:20:24.85271 {"level":"info","ts":1550089224.8527024,"logger":"foo","caller":"bar.go:1234","msg":"The log message","pid":11976,"json":{"arg1":"foo","arg2":bar}}
-const tmpl = `%s {"level":"fatal","ts":%s,"logger":"%s","caller":"%s","msg":"Process ended with non-zero exit code","pid":%d,"json":{"error":%s,"stderr":%s}}`
+const tmpl = `%s {"level":"fatal","ts":%s,"logger":"%s","caller":"%s","msg":"Unexpected program output","pid":%d,"json":{"stderr":%s}}`
 
 const fmtTimePrefix = "2006-01-02T15:04:05.00000"
 
