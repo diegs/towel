@@ -51,7 +51,7 @@ func main() {
 }
 
 // format: 2019-02-13T20:20:24.85271 {"level":"info","ts":1550089224.8527024,"logger":"foo","caller":"bar.go:1234","msg":"The log message","pid":11976,"json":{"arg1":"foo","arg2":bar}}
-const tmpl = `%s {"level":"fatal","ts":%s,"logger":"%s","caller":"%s","msg":"Process ended with non-zero exit code","pid":%d,"json":{"error":%s,"stderr":"%s"}}`
+const tmpl = `%s {"level":"fatal","ts":%s,"logger":"%s","caller":"%s","msg":"Process ended with non-zero exit code","pid":%d,"json":{"error":%s,"stderr":%s}}`
 
 const fmtTimePrefix = "2006-01-02T15:04:05.00000"
 
