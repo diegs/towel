@@ -43,7 +43,7 @@ func main() {
 		switch err := err.(type) {
 		case *exec.ExitError:
 			now := time.Now().UTC()
-			fmt.Printf(tmpl, now.Format(fmtTimePrefix), fmtTimeTS(now), program, "main.go", err.Pid(), err.Error(), strconv.Quote(string(stderr)))
+			fmt.Printf(tmpl, now.Format(fmtTimePrefix), fmtTimeTS(now), program, program, err.Pid(), err.Error(), strconv.Quote(string(stderr)))
 		default:
 			log.Fatal(err)
 		}
