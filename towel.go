@@ -39,10 +39,8 @@ func main() {
 	var buf bytes.Buffer
 	stderr := bufio.NewWriter(os.Stderr)
 	defer stderr.Flush()
-	for {
-		if !s.Scan() {
-			break
-		}
+
+	for s.Scan() {
 		bs := s.Bytes()
 		if bs[len(bs)-1] == '}' {
 			if buf.Len() > 0 {
