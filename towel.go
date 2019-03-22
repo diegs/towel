@@ -46,6 +46,7 @@ func main() {
 			if buf.Len() > 0 {
 				now := time.Now().UTC()
 				stderr.WriteString(fmt.Sprintf(tmpl, now.Format(fmtTimePrefix), fmtTimeTS(now), program, program, c.Process.Pid, strconv.Quote(buf.String())))
+				stderr.WriteRune('\n')
 				buf.Reset()
 			}
 			stderr.Write(bs)
@@ -59,6 +60,7 @@ func main() {
 	if buf.Len() > 0 {
 		now := time.Now().UTC()
 		stderr.WriteString(fmt.Sprintf(tmpl, now.Format(fmtTimePrefix), fmtTimeTS(now), program, program, c.Process.Pid, strconv.Quote(buf.String())))
+		stderr.WriteRune('\n')
 		buf.Reset()
 	}
 
