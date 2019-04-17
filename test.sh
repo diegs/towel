@@ -6,5 +6,7 @@
 >&2 echo "12345 {back to valid logging}"
 >&2 echo "12345 {for a few lines}"
 >&2 echo "and then a panic!"
->&2 echo "on a few lines"
+>&2 echo "with a blank"
+>&2 echo ""
+>&2 echo "across a few lines"
 exit 2
