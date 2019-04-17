@@ -42,7 +42,7 @@ func main() {
 
 	for s.Scan() {
 		bs := s.Bytes()
-		if bs[len(bs)-1] == '}' {
+		if len(bs) > 0 && bs[len(bs)-1] == '}' {
 			if buf.Len() > 0 {
 				now := time.Now().UTC()
 				stderr.WriteString(fmt.Sprintf(tmpl, now.Format(fmtTimePrefix), fmtTimeTS(now), program, program, c.Process.Pid, strconv.Quote(buf.String())))
